@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeOfAdvent2021
+namespace AdventOfCode2021
 {
     class Program
     {
