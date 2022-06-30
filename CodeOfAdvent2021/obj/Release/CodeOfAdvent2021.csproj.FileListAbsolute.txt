@@ -1,0 +1,7 @@
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\bin\Release\CodeOfAdvent2021.exe.config
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\bin\Release\CodeOfAdvent2021.exe
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\bin\Release\CodeOfAdvent2021.pdb
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\obj\Release\CodeOfAdvent2021.csproj.CoreCompileInputs.cache
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\obj\Release\CodeOfAdvent2021.exe
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\obj\Release\CodeOfAdvent2021.pdb
+C:\Users\Calvin\source\repos\CodeOfAdvent2021\CodeOfAdvent2021\obj\Release\CodeOfAdvent2021.csproj.AssemblyReference.cache
