@@ -77,7 +77,8 @@ namespace Day_4
             // Add the last bingo card
             AllBingoCards.Add(bingoCards);
 
-            List<BingocardNumber> Winner = null;
+            // Challenge 2
+            List<List<BingocardNumber>> WinnerList = new List<List<BingocardNumber>>();
             int lastBingonumber = 0;
 
             // Cross off numbers and check for bingo
@@ -87,24 +88,25 @@ namespace Day_4
                 foreach (List<BingocardNumber> card in AllBingoCards)
                 {
                     CheckNumber(card, Int32.Parse(bingoNumber));
-                    if (CheckBingo(card) != null)
+                    if (CheckBingo(card) != null && !WinnerList.Contains(card))
                     {
-                        Winner = card;
+                        // Winner = card;
+                        WinnerList.Add(card);
                         lastBingonumber = Int32.Parse(bingoNumber);
-                        break;
                     }
                 }
 
-                if (Winner != null)
+                if (WinnerList.Count == 100) // Challenge 1: Set count to 1
                     break;
             }
 
             int uncheckedSum = 0;
-            foreach (BingocardNumber winnerCard in Winner)
+            foreach (BingocardNumber winnerCard in WinnerList[WinnerList.Count - 1]) // Last winning bingo card
             {
                 if (winnerCard.Checked == false)
                     uncheckedSum += winnerCard.Number;
             }
+
 
             // Print answer
             Console.WriteLine(uncheckedSum * lastBingonumber);
