@@ -62,23 +62,23 @@ namespace Day_4
             List<BingocardNumber> bingoCards = new List<BingocardNumber>();
 
             // Format to individual cards
-            int count = 0;
             foreach (string number in allBingoCardNumbers)
             {
-                if (count < bingoCardSize)
-                {
+                if (bingoCards.Count != bingoCardSize)
                     bingoCards.Add(new BingocardNumber(Int32.Parse(number), false));
-                    count++;
-                }
                 else
                 {
-                    count = 0;
                     AllBingoCards.Add(bingoCards);
                     bingoCards = new List<BingocardNumber>();
+                    bingoCards.Add(new BingocardNumber(Int32.Parse(number), false));
                 }
             }
 
+            // Add the last bingo card
+            AllBingoCards.Add(bingoCards);
+
             List<BingocardNumber> Winner = null;
+            int lastBingonumber = 0;
 
             // Cross off numbers and check for bingo
             string[] bingoNumbersInt = bingoNumbersText.Split(',');
@@ -87,32 +87,36 @@ namespace Day_4
                 foreach (List<BingocardNumber> card in AllBingoCards)
                 {
                     CheckNumber(card, Int32.Parse(bingoNumber));
-                    /*if (CheckBingo(card) != null)
-                        Winner = card;*/
+                    if (CheckBingo(card) != null)
+                    {
+                        Winner = card;
+                        lastBingonumber = Int32.Parse(bingoNumber);
+                        break;
+                    }
                 }
+
+                if (Winner != null)
+                    break;
             }
 
-            foreach (List<BingocardNumber> card in AllBingoCards)
+            int uncheckedSum = 0;
+            foreach (BingocardNumber winnerCard in Winner)
             {
-                foreach (BingocardNumber car in card)
-                {
-                    Console.WriteLine(car.Number);
-                    Console.WriteLine(car.Checked);
-                    Console.WriteLine();
-                }
-                /*if (CheckBingo(card) != null)
-                    Winner = card;*/
+                if (winnerCard.Checked == false)
+                    uncheckedSum += winnerCard.Number;
             }
 
-            // What is the result???
-
+            // Print answer
+            Console.WriteLine(uncheckedSum * lastBingonumber);
         }
 
         static void CheckNumber(List<BingocardNumber> bingoCard, int bingoNumber)
         {
             foreach (BingocardNumber entry in bingoCard)
+            {
                 if (entry.Number == bingoNumber)
                     entry.Checked = true;
+            }
         }
 
         static List<BingocardNumber> CheckBingo(List<BingocardNumber> bingoCard)
@@ -133,8 +137,8 @@ namespace Day_4
                         checks++;
                     else
                     {
-                        break;
                         checks = 0;
+                        break;
                     }
                 }
 
@@ -155,8 +159,8 @@ namespace Day_4
                         checks++;
                     else
                     {
-                        break;
                         checks = 0;
+                        break;
                     }
                 }
 
