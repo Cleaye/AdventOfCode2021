@@ -7,50 +7,44 @@ class HelloWorld
     static void Main()
     {
         string[] lines = System.IO.File.ReadAllLines(@"F:\Repos\AdventOfCode2021\Day 8\Day8.txt");
+        // string[] lines = System.IO.File.ReadAllLines(@"F:\Repos\AdventOfCode2021\Day 8\Day8Test.txt");
         List<string> sequences = new List<string>();
 
         foreach (string line in lines)
             sequences.Add(line);
 
-        AnalyzeSegment("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf");
         int count = 0;
         foreach(string sequence in sequences)
         {
             string[] segment = sequence.Split(new string[] { " | " }, StringSplitOptions.None);
-            Dictionary<string, string> openWith = AnalyzeSegment(segment[0]);
+            Dictionary<char, char> sequenceWiring = AnalyzeSegment(segment[0]);
+            Dictionary<string, int> wiring = TranslateToNumbers(sequenceWiring);
+            Console.WriteLine(DecodeOutput(wiring, segment[1]));
 
-            string[] split = segment[1].Split(' ');
-            foreach(string part in split)
-            {
-                if(part.Length == 2 || part.Length == 3 || part.Length == 4 || part.Length == 7)
-                    count++;
-
-                Console.WriteLine(String.Concat(part.OrderBy(c => c)));
-            }
+            count += DecodeOutput(wiring, segment[1]);
         }
 
         Console.WriteLine(count);
     }
 
-    static Dictionary<string, string> AnalyzeSegment(string signal)
+    static Dictionary<char, char> AnalyzeSegment(string signal)
     {
         Dictionary<char, char> wiring = new Dictionary<char, char>();
-        wiring.Add('a', ' '); //  aaaa GET
-        wiring.Add('b', ' '); // b    c   GET
-        wiring.Add('c', ' '); // b    c
-        wiring.Add('d', ' '); //  dddd    GET
-        wiring.Add('e', ' '); // e    f   GET
-        wiring.Add('f', ' '); // e    f
-        wiring.Add('g', ' '); //  gggg
+        wiring.Add('a', ' '); 
+        wiring.Add('b', ' '); 
+        wiring.Add('c', ' '); 
+        wiring.Add('d', ' '); 
+        wiring.Add('e', ' '); 
+        wiring.Add('f', ' '); 
+        wiring.Add('g', ' '); 
 
         string[] patterns = signal.Split(' ');
-        List<string> zerosixnine = new List<string>(); // 0, 6, 9 uses 7 segments
-        List<string> twothreefive = new List<string>(); // 2, 3, 5 uses 6 segments
+        List<string> zerosixnine = new List<string>();
+        List<string> twothreefive = new List<string>();
+
+        // Can be deducted immediately
         string one = "";
-        string two = "";
-        string three = "";
         string four = "";
-        string five = "";
         string seven = "";
         string eight = "";
 
@@ -96,61 +90,112 @@ class HelloWorld
             }
         }
 
-        // Figure out 'a'
-        foreach (char c in seven)
+        // Unique segment occurrences
+        // a = 8x
+        // b = 6x
+        // c = 8x
+        // d = 7x
+        // e = 4x
+        // f = 9x
+        // g = 7x
+
+        Dictionary<char, int> charCounts = new Dictionary<char, int>();
+        foreach(string s in patterns)
         {
-            if (!one.Contains(c))
-                wiring['a'] = c;
+            foreach (char c in s)
+                if (!charCounts.ContainsKey(c))
+                    charCounts.Add(c, 1);
+                else
+                {
+                    int count = charCounts[c] + 1;
+                    charCounts[c] = count;
+                }
         }
+
+        // Figure out the unique segment occurrences
+        wiring['b'] = charCounts.FirstOrDefault(x => x.Value == 6).Key;
+        wiring['e'] = charCounts.FirstOrDefault(x => x.Value == 4).Key;
+        wiring['f'] = charCounts.FirstOrDefault(x => x.Value == 9).Key;
 
         // Figure out 'c'
-        foreach (char c in one)
-        {
-            // Console.WriteLine(c);
-            foreach (string s in zerosixnine)
-            {
-                if (!s.Contains(c))
-                    wiring['c'] = c;
-            }
-        }
+        string letterC = one;
+        letterC = String.Join("", letterC.Split(wiring['f']));
+        wiring['c'] = letterC.ToCharArray()[0];
 
-        // Figure out 'f'
-        foreach (char c in seven)
-        {
-            if (wiring[c] == ' ')
-                wiring['f'] = c;
-        }
+        // Figure out 'a'
+        string letterA = seven;
+        letterA = String.Join("", letterA.Split(wiring['c'], wiring['f']));
+        wiring['a'] = letterA.ToCharArray()[0];
 
         // Figure out 'd'
-        char[] knownInFour = { wiring['c'], wiring['f'] };
-        string possibleD = four.Trim(knownInFour);
-        foreach (char c in possibleD)
-        {
-            foreach (string s in zerosixnine)
-            {
-                if (!s.Contains(c))
-                    wiring['d'] = c;
-            }
-        }
+        string letterD = four;
+        letterD = String.Join("", letterD.Split(wiring['b'], wiring['c'], wiring['f']));
+        wiring['d'] = letterD.ToCharArray()[0];
 
         // Figure out 'g'
-        /*foreach (string s in twothreefive)
-        {
-            char[] test = { wiring['c'], wiring['f'] };
-            acfd = String.Concat(acfd.OrderBy(c => c));
-            string s_ordered = String.Concat(s.OrderBy(c => c));
-            if (s_ordered.Contains(acfd))
-            {
-                wiring['g'] = s_ordered.Trim(acfd);
-            }
-        }*/
+        string letterG = eight;
+        letterG = String.Join("", letterG.Split(wiring['a'], wiring['b'], wiring['c'], wiring['d'], wiring['e'], wiring['f']));
+        wiring['g'] = letterG.ToCharArray()[0];
 
-        Console.WriteLine(wiring['a']);
-        Console.WriteLine(wiring['c']);
-        Console.WriteLine(wiring['f']);
-        Console.WriteLine(wiring['d']);
-        Console.WriteLine(wiring['g']);
+        return wiring;
+    }
 
-        return null;
+    static Dictionary<string, int> TranslateToNumbers(Dictionary<char, char> decodedWiring)
+    {
+        string entry = "";
+        Dictionary<string, int> numberTranslation = new Dictionary<string, int>();
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['b'].ToString() + decodedWiring['c'].ToString() + decodedWiring['e'].ToString() + decodedWiring['f'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 0);
+
+        entry = decodedWiring['c'].ToString() + decodedWiring['f'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 1);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['c'].ToString() + decodedWiring['d'].ToString() + decodedWiring['e'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 2);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['c'].ToString() + decodedWiring['d'].ToString() + decodedWiring['f'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 3);
+
+        entry = decodedWiring['b'].ToString() + decodedWiring['c'].ToString() + decodedWiring['d'].ToString() + decodedWiring['f'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 4);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['b'].ToString() + decodedWiring['d'].ToString() + decodedWiring['f'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 5);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['b'].ToString() + decodedWiring['d'].ToString() + decodedWiring['e'].ToString() + decodedWiring['f'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 6);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['c'].ToString() + decodedWiring['f'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 7);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['b'].ToString() + decodedWiring['c'].ToString() + decodedWiring['d'].ToString() + decodedWiring['e'].ToString() + decodedWiring['f'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 8);
+
+        entry = decodedWiring['a'].ToString() + decodedWiring['b'].ToString() + decodedWiring['c'].ToString() + decodedWiring['d'].ToString() + decodedWiring['f'].ToString() + decodedWiring['g'].ToString();
+        entry = String.Concat(entry.OrderBy(c => c));
+        numberTranslation.Add(entry, 9);
+
+        return numberTranslation;
+    }
+
+    static int DecodeOutput(Dictionary<string, int> wiring, string output)
+    {
+        string outputValue = "";
+        string[] split = output.Split(' ');
+
+        foreach (string part in split)
+            outputValue += wiring[String.Concat(part.OrderBy(c => c))];
+
+        return Int32.Parse(outputValue);
     }
 }
