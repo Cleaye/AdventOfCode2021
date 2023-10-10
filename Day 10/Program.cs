@@ -7,7 +7,7 @@ class HelloWorld
     static void Main()
     {
         //string[] lines = System.IO.File.ReadAllLines(@"F:\Repos\AdventOfCode2021\Day 10\Day10Test.txt");
-        string[] lines = System.IO.File.ReadAllLines(@"F:\Repos\AdventOfCode2021\Day 10\Day10.txt");
+        string[] lines = System.IO.File.ReadAllLines("..\\..\\..\\Day10.txt");
 
         int points = 0;
         char[] opening = { '(', '[', '{', '<' };
@@ -24,34 +24,24 @@ class HelloWorld
         foreach (string line in lines)
         {
             List<char> sequence = line.ToList();
+            Stack<char> checkedS = new Stack<char>();
 
             int characters = sequence.Count;
             int remainingChars = characters;
 
-            for (int i = 0; i < characters; i++)
+            for (int i = 0; i < characters; i++) // New Method
             {
-                if (i >= sequence.Count)
-                    break;
-
                 if (closing.Contains(sequence.ElementAt(i)))
                 {
-                    if (Array.IndexOf(opening, sequence.ElementAt(i - 1)) != Array.IndexOf(closing, sequence.ElementAt(i))) // Illegal character found
+                    if (Array.IndexOf(opening, checkedS.Pop()) != Array.IndexOf(closing, sequence.ElementAt(i))) // Illegal character found
                     {
                         points += characterValues.ContainsKey(sequence.ElementAt(i)) ? characterValues[sequence.ElementAt(i)] : 0;
                         Console.WriteLine(line);
                         break;
                     }
-                    else 
-                    {
-                        sequence.RemoveAt(i);
-                        sequence.RemoveAt(i - 1);
-
-                        if (i - 2 >= 0)
-                            i -= 2;
-                        else
-                            i--;
-                    }
                 }
+                else
+                    checkedS.Push(sequence.ElementAt(i));
             }
         }
 
